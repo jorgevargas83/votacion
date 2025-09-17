@@ -1,14 +1,12 @@
-
 import { supabase } from "./app.js";
 
-// Referencias a elementos del DOM
-const createBtn = document.getElementById("create");
 const titleInput = document.getElementById("title");
 const candidateInput = document.getElementById("candidate");
 const imageInput = document.getElementById("image");
 const judgesInput = document.getElementById("judges");
-const qrDiv = document.getElementById("qr");
-const resultsBtn = document.getElementById("resultsBtn");
+const createBtn = document.getElementById("createPoll");
+const qrContainer = document.getElementById("qrContainer");
+const resultsBtn = document.getElementById("viewResultsBtn");
 
 createBtn.onclick = async () => {
   try {
@@ -16,63 +14,48 @@ createBtn.onclick = async () => {
     const candidate = candidateInput.value.trim();
     const image = imageInput.value.trim();
 
-    if (!title) return alert("Por favor ingresa un título");
+    if (!title) return alert("El título es obligatorio");
 
-    // ✅ Convertir jueces a mayúsculas y limpiar espacios
-    const judges = judgesInput.value
-      .split(",")
-      .map(j => j.trim().toUpperCase())
-      .filter(Boolean);
-
-    // 1️⃣ Crear la encuesta
-    const { data: poll, error } = await supabase
+    // Crear encuesta en la BD
+    const { data, error } = await supabase
       .from("polls")
-      .insert([{ title, candidate_name: candidate, image_url: image }])
+      .insert([
+        {
+          title,
+          candidate_name: candidate || null,
+          image_url: image || null
+        }
+      ])
       .select()
       .single();
 
-    if (error) throw error;
-
-    // 2️⃣ Asignar jueces a poll_judges
-    for (const code of judges) {
-      const { data: user } = await supabase
-        .from("users")
-        .select("id")
-        .eq("code", code)
-        .maybeSingle();
-
-      if (!user) {
-        console.warn(`⚠ No se encontró el juez con código ${code}`);
-        continue;
-      }
-
-      const { error: insertError } = await supabase
-        .from("poll_judges")
-        .insert([{ poll_id: poll.id, user_id: user.id }]);
-
-      if (insertError) console.error(insertError);
+    if (error) {
+      console.error("Error creando encuesta:", error);
+      alert("Hubo un problema creando la encuesta.");
+      return;
     }
 
-    // 3️⃣ Generar QR de votación
-    const url = `${window.location.origin}/vote.html?poll=${poll.id}`;
-    qrDiv.innerHTML = ""; // limpiar
-    const canvas = document.createElement("canvas");
-    qrDiv.appendChild(canvas);
-    QRCode.toCanvas(canvas, url, { width: 200 }, (err) => {
-      if (err) console.error(err);
-      console.log("QR generado:", url);
+    console.log("Encuesta creada:", data);
+
+    // Generar QR
+    const pollUrl = `${window.location.origin}/vote.html?poll=${data.id}`;
+    console.log("QR generado:", pollUrl);
+
+    qrContainer.innerHTML = "";
+    new QRCode(qrContainer, {
+      text: pollUrl,
+      width: 256,
+      height: 256
     });
 
-    // ✅ Mostrar botón de resultados en vivo
-    if (resultsBtn) {
-      resultsBtn.style.display = "block";
-      resultsBtn.onclick = () => {
-        window.open(`results.html?poll=${poll.id}`, "_blank");
-      };
-    }
+    // 🔧 AHORA el botón usa el ID correcto porque estamos dentro del mismo bloque
+    resultsBtn.style.display = "inline-block";
+    resultsBtn.onclick = () => {
+      window.location.href = `results.html?poll=${data.id}`;
+    };
 
   } catch (err) {
     console.error("Error general:", err);
-    alert("Hubo un problema creando la encuesta");
+    alert("Hubo un problema inesperado.");
   }
 };

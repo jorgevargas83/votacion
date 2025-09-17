@@ -5,29 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Crear encuesta</title>
   <link rel="stylesheet" href="style.css">
+
+  <!-- Librería QRCode.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>Crear encuesta</h1>
-    <div class="card">
-      <input type="text" id="title" placeholder="Título de la encuesta">
-      <input type="text" id="candidate" placeholder="Nombre del candidato">
-      <input type="text" id="image" placeholder="URL de la foto (pública)">
-      <input type="text" id="judges" placeholder="Códigos de jueces (separados por comas)">
-      <button id="create">Crear y mostrar QR</button>
-      <div id="qr" style="margin-top: 20px;"></div>
-      <button id="results" style="margin-top: 20px; display: none;">Ver resultados en vivo</button>
 
-    </div>
+    <input id="title" type="text" placeholder="Título de la encuesta" />
+    <input id="candidate" type="text" placeholder="Nombre del candidato (opcional)" />
+    <input id="image" type="text" placeholder="URL de la foto (pública)" />
+    <input id="judges" type="text" placeholder="Códigos de jueces separados por coma (ej: JUEZ001,JUEZ002)" />
+
+    <button id="createPoll" class="btn btn-primary">Crear y mostrar QR</button>
+
+    <div id="qrContainer" style="margin-top: 20px;"></div>
+
+    <!-- Botón para ver resultados en vivo -->
+    <button id="viewResultsBtn" class="btn btn-secondary" style="display:none; margin-top: 10px;">
+      Ver resultados en vivo
+    </button>
   </div>
 
-  <!-- Importa primero tu archivo de configuración de Supabase -->
-  <script type="module" src="./app.js"></script>
-
-  <!-- Script principal de la lógica del admin -->
-  <script type="module" src="./admin.js"></script>
-
-  <!-- Librería de QR para que QRCode esté definido -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script type="module" src="admin.js"></script>
 </body>
 </html>
