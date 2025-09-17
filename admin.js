@@ -1,3 +1,14 @@
+
+import { supabase } from "./app.js";
+
+// 🔧 Obtener referencias de los elementos del DOM
+const createBtn = document.getElementById("create");
+const titleInput = document.getElementById("title");
+const candidateInput = document.getElementById("candidate");
+const imageInput = document.getElementById("image");
+const judgesInput = document.getElementById("judges");
+const qrDiv = document.getElementById("qr");
+
 createBtn.onclick = async () => {
   const title = titleInput.value.trim();
   const candidate = candidateInput.value.trim();
