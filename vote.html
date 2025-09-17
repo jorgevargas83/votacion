@@ -15,11 +15,13 @@
       <input id="code" placeholder="Ingresa tu carnet"/>
       <button id="check">Continuar</button>
     </div>
-    <div id="voteArea" style="display:none">
-      <div class="big" id="val">0.0</div>
-      <input id="slider" type="range" min="0" max="10" step="0.1" value="0" class="slider"/>
-      <button id="send">Enviar voto</button>
-    </div>
+   <div id="voteArea" style="display: none;">
+  <label for="score">Puntaje:</label>
+  <input type="range" id="score" min="0" max="10" step="0.1" value="0">
+  <span id="scoreValue">0.0</span>
+  <button id="submitVote">Enviar voto</button>
+</div>
+
   </div>
 
   <div id="modal" class="modal" style="display:none">

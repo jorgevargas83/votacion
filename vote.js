@@ -76,3 +76,12 @@ document.getElementById("submitVote").onclick = async () => {
   alert(`✅ Voto registrado como ${data.role}, puntaje: ${data.score}`);
   document.getElementById("voteArea").style.display = "none";
 };
+
+
+// Mostrar valor del slider en tiempo real
+const scoreInput = document.getElementById("score");
+const scoreValue = document.getElementById("scoreValue");
+
+scoreInput.addEventListener("input", () => {
+  scoreValue.textContent = parseFloat(scoreInput.value).toFixed(1);
+});

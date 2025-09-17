@@ -1,21 +1,66 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <title>Resultados</title>
-  <link rel="stylesheet" href="style.css"/>
-  <script type="module" src="results.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultados en Vivo</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    #results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+
+    .judge-card {
+      border-left: 4px solid #4cafef;
+    }
+
+    .public-card {
+      border-left: 4px solid #ffa726;
+    }
+
+    .score {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #4cafef;
+    }
+
+    .total {
+      grid-column: 1 / -1;
+      background: #333;
+      padding: 20px;
+      border-radius: 12px;
+      font-size: 2rem;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1 id="title">Resultados</h1>
-    <img id="photo" style="max-height:250px"/>
-    <p id="candidate"></p>
-    <div class="card">
-      <p>Jueces: <span id="j">0.0</span> / 30</p>
-      <p>Público (promedio): <span id="p">0.0</span> / 10</p>
-      <h2>Total: <span id="t">0.0</span> / 40</h2>
-    </div>
-  </div>
+  <h1>Resultados en Vivo</h1>
+  <div id="results">Cargando resultados...</div>
+
+  <script type="module" src="./results.js"></script>
 </body>
 </html>
