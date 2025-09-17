@@ -1,40 +1,39 @@
 
 import { supabase } from "./app.js";
 
-// 🔧 Obtener referencias de los elementos del DOM
+// Referencias a elementos del DOM
 const createBtn = document.getElementById("create");
 const titleInput = document.getElementById("title");
 const candidateInput = document.getElementById("candidate");
 const imageInput = document.getElementById("image");
 const judgesInput = document.getElementById("judges");
 const qrDiv = document.getElementById("qr");
+const resultsBtn = document.getElementById("resultsBtn");
 
 createBtn.onclick = async () => {
-  const title = titleInput.value.trim();
-  const candidate = candidateInput.value.trim();
-  const image = imageInput.value.trim();
-  const judges = judgesInput.value.split(",").map(j => j.trim().toUpperCase()).filter(Boolean);
-
-  if (!title) return alert("Debes ingresar un título para la encuesta.");
-
   try {
-    // 1️⃣ Crear encuesta
-    const { data: poll, error: pollError } = await supabase
+    const title = titleInput.value.trim();
+    const candidate = candidateInput.value.trim();
+    const image = imageInput.value.trim();
+
+    if (!title) return alert("Por favor ingresa un título");
+
+    // ✅ Convertir jueces a mayúsculas y limpiar espacios
+    const judges = judgesInput.value
+      .split(",")
+      .map(j => j.trim().toUpperCase())
+      .filter(Boolean);
+
+    // 1️⃣ Crear la encuesta
+    const { data: poll, error } = await supabase
       .from("polls")
       .insert([{ title, candidate_name: candidate, image_url: image }])
       .select()
       .single();
 
-    if (pollError) {
-      console.error("Error creando encuesta:", pollError);
-      alert("Error al crear encuesta: " + pollError.message);
-      return;
-    }
+    if (error) throw error;
 
-    // 🔧 Guardar poll.id en variable global para usarlo después
-    window.currentPollId = poll.id;
-
-    // 2️⃣ Asignar jueces
+    // 2️⃣ Asignar jueces a poll_judges
     for (const code of judges) {
       const { data: user } = await supabase
         .from("users")
@@ -46,33 +45,34 @@ createBtn.onclick = async () => {
         console.warn(`⚠ No se encontró el juez con código ${code}`);
         continue;
       }
-      await supabase.from("poll_judges").insert([{ poll_id: poll.id, user_id: user.id }]);
+
+      const { error: insertError } = await supabase
+        .from("poll_judges")
+        .insert([{ poll_id: poll.id, user_id: user.id }]);
+
+      if (insertError) console.error(insertError);
     }
 
-    // 3️⃣ Generar QR
-    qrDiv.innerHTML = "";
-    const qrUrl = `${location.origin}/vote.html?poll=${poll.id}`;
-    new QRCode(qrDiv, {
-      text: qrUrl,
-      width: 280,
-      height: 280,
-      colorDark: "#000000",
-      colorLight: "#ffffff",
-      correctLevel: QRCode.CorrectLevel.H
+    // 3️⃣ Generar QR de votación
+    const url = `${window.location.origin}/vote.html?poll=${poll.id}`;
+    qrDiv.innerHTML = ""; // limpiar
+    const canvas = document.createElement("canvas");
+    qrDiv.appendChild(canvas);
+    QRCode.toCanvas(canvas, url, { width: 200 }, (err) => {
+      if (err) console.error(err);
+      console.log("QR generado:", url);
     });
 
-    console.log("QR generado:", qrUrl);
+    // ✅ Mostrar botón de resultados en vivo
+    if (resultsBtn) {
+      resultsBtn.style.display = "block";
+      resultsBtn.onclick = () => {
+        window.open(`results.html?poll=${poll.id}`, "_blank");
+      };
+    }
 
-    // 4️⃣ Mostrar botón de resultados
-    const resultsBtn = document.getElementById("results");
-    resultsBtn.style.display = "block";
-    resultsBtn.onclick = () => {
-      window.open(`${location.origin}/results.html?poll=${window.currentPollId}`, "_blank");
-    };
-
-    alert("Encuesta creada con éxito ✅");
-  } catch (e) {
-    console.error("Error general:", e);
-    alert("Hubo un error inesperado. Revisa la consola para más detalles.");
+  } catch (err) {
+    console.error("Error general:", err);
+    alert("Hubo un problema creando la encuesta");
   }
 };
