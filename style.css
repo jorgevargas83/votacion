@@ -1,0 +1,15 @@
+:root { --bg:#0b0d10; --fg:#e9eef5; --muted:#a9b3c1; --card:#151a21; --acc:#7cd1f9; }
+*{ box-sizing:border-box }
+body{ margin:0; padding:0; background:var(--bg); color:var(--fg); font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial; }
+.container{ max-width:960px; margin:40px auto; padding:0 16px; }
+h1{ margin-bottom:16px }
+.card{ background:var(--card); padding:18px; border-radius:14px; margin-bottom:20px }
+input,select{ width:100%; padding:10px; border-radius:10px; border:1px solid #263241; background:#0f1217; color:var(--fg); margin-bottom:12px }
+button{ background:var(--acc); color:#04293a; border:0; border-radius:12px; padding:10px 14px; font-weight:600; cursor:pointer; margin-top:6px }
+button.secondary{ background:#263241; color:var(--fg) }
+img{ max-width:100%; border-radius:14px }
+.slider{ width:100% }
+.big{ font-size:32px; font-weight:bold }
+.flex{ display:flex; gap:12px; align-items:center }
+.modal{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); display:flex; justify-content:center; align-items:center; z-index:999 }
+.modal-content{ background:#1c222b; padding:20px; border-radius:14px; max-width:400px; text-align:center }

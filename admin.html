@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <title>Admin - Crear encuesta</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script type="module" src="admin.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Crear encuesta</h1>
+    <div class="card">
+      <input id="title" placeholder="Título de la votación"/>
+      <input id="candidate" placeholder="Nombre de la persona evaluada"/>
+      <input id="image" placeholder="URL de la foto (pública)"/>
+      <input id="judges" placeholder="Códigos de jueces (separados por coma)"/>
+      <button id="create">Crear y mostrar QR</button>
+    </div>
+    <div id="qr"></div>
+  </div>
+</body>
+</html>
