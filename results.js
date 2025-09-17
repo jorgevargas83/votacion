@@ -1,72 +1,58 @@
 import { supabase, qs } from "./app.js";
 
 const pollId = qs("poll");
-const container = document.getElementById("results");
 
-async function fetchResults() {
-  // Obtener votos con detalle de usuario
+async function loadResults() {
   const { data: votes, error } = await supabase
     .from("votes")
-    .select("score, role, users(name, code)")
+    .select("*")
     .eq("poll_id", pollId);
 
   if (error) {
-    console.error(error);
-    container.innerHTML = `<p>Error cargando resultados</p>`;
+    console.error("Error cargando resultados:", error);
     return;
   }
 
+  const container = document.getElementById("results");
+  container.innerHTML = "";
+
   if (!votes || votes.length === 0) {
-    container.innerHTML = `<p>No hay votos todavía</p>`;
+    container.textContent = "No hay votos todavía";
     return;
   }
 
   const judges = votes.filter(v => v.role === "judge");
-  const publicVotes = votes.filter(v => v.role === "public");
+  const publics = votes.filter(v => v.role === "public");
 
-  // Construcción dinámica de tarjetas
-  let html = "";
+  const avg = arr =>
+    arr.length > 0
+      ? (arr.reduce((sum, v) => sum + v.score, 0) / arr.length).toFixed(2)
+      : "0.00";
 
-  // Jueces
-  html += judges
-    .map(j => {
-      return `
-        <div class="card judge-card">
-          <h3>${j.users?.name || j.users?.code}</h3>
-          <div class="score">${parseFloat(j.score).toFixed(1)}</div>
-        </div>
-      `;
-    })
-    .join("");
-
-  // Promedio público
-  const publicAvg =
-    publicVotes.length > 0
-      ? publicVotes.reduce((s, v) => s + parseFloat(v.score), 0) /
-        publicVotes.length
-      : 0;
-
-  html += `
-    <div class="card public-card">
-      <h3>Promedio Público</h3>
-      <div class="score">${publicAvg.toFixed(1)}</div>
-      <p>(${publicVotes.length} votos)</p>
-    </div>
+  container.innerHTML = `
+    <h3>Resultados</h3>
+    <p><strong>Promedio jueces:</strong> ${avg(judges)}</p>
+    <ul>
+      ${judges
+        .map(j => `<li>Juez ${j.user_code}: ${j.score}</li>`)
+        .join("")}
+    </ul>
+    <p><strong>Promedio público:</strong> ${avg(publics)}</p>
+    <p><strong>Total votos:</strong> ${votes.length}</p>
   `;
-
-  // Total acumulado
-  const total =
-    judges.reduce((s, v) => s + parseFloat(v.score), 0) + publicAvg;
-
-  html += `
-    <div class="total">
-      Total Acumulado: ${total.toFixed(1)} / 40
-    </div>
-  `;
-
-  container.innerHTML = html;
 }
 
-// Actualizar resultados cada 3 segundos
-setInterval(fetchResults, 3000);
-fetchResults();
+// ✅ Escucha en tiempo real para actualizar sin refrescar
+supabase
+  .channel("realtime-votes")
+  .on(
+    "postgres_changes",
+    { event: "INSERT", schema: "public", table: "votes", filter: `poll_id=eq.${pollId}` },
+    payload => {
+      console.log("Nuevo voto recibido:", payload.new);
+      loadResults();
+    }
+  )
+  .subscribe();
+
+loadResults();
