@@ -1,25 +1,45 @@
-import { supabase, qs } from "./app.js";
+import { supabase } from "./app.js";
 
-const pollId = qs("poll");
+const urlParams = new URLSearchParams(window.location.search);
+const pollId = urlParams.get("poll");
+const container = document.getElementById("results");
 
-(async ()=>{
-  const { data: poll } = await supabase.from("polls").select("*").eq("id", pollId).single();
-  if(poll){
-    document.getElementById("title").textContent = poll.title;
-    document.getElementById("candidate").textContent = poll.candidate_name || "";
-    if(poll.image_url) document.getElementById("photo").src = poll.image_url;
-  }
+async function fetchResults() {
+  // Obtener votos con detalle de usuario
+  const { data: votes } = await supabase
+    .from("votes")
+    .select("score, role, user_id, users(name, code)")
+    .eq("poll_id", pollId);
 
-  async function refresh(){
-    const { data } = await supabase.rpc("poll_scores",{ p_poll_id: pollId });
-    if(!data) return;
-    document.getElementById("j").textContent = Number(data.judges_total||0).toFixed(1);
-    document.getElementById("p").textContent = Number(data.public_avg||0).toFixed(1);
-    document.getElementById("t").textContent = Number(data.total_40||0).toFixed(1);
-  }
+  if (!votes) return;
 
-  refresh();
-  supabase.channel("votes")
-    .on("postgres_changes",{ event:"*", schema:"public", table:"votes", filter:`poll_id=eq.${pollId}` }, refresh)
-    .subscribe();
-})();
+  // Separar jueces y público
+  const judges = votes.filter(v => v.role === "judge");
+  const publicVotes = votes.filter(v => v.role === "public");
+
+  // Mostrar resultados
+  container.innerHTML = `
+    <h2>Resultados en tiempo real</h2>
+    <h3>Jueces</h3>
+    <ul>
+      ${judges.map(j => `<li>${j.users?.name || j.users?.code}: <b>${j.score}</b></li>`).join("")}
+    </ul>
+    <h3>Promedio del Público</h3>
+    <p><b>${
+      publicVotes.length > 0
+        ? (publicVotes.reduce((sum, v) => sum + parseFloat(v.score), 0) / publicVotes.length).toFixed(2)
+        : "0.00"
+    }</b> (${publicVotes.length} votos)</p>
+    <h3>Total acumulado</h3>
+    <p><b>${(
+      judges.reduce((s, v) => s + parseFloat(v.score), 0) +
+      (publicVotes.length > 0
+        ? (publicVotes.reduce((sum, v) => sum + parseFloat(v.score), 0) / publicVotes.length)
+        : 0)
+    ).toFixed(2)} / 40</b></p>
+  `;
+}
+
+// Actualizar cada 3 segundos
+setInterval(fetchResults, 3000);
+fetchResults();

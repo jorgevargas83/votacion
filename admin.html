@@ -1,23 +1,33 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <title>Admin - Crear encuesta</title>
-  <link rel="stylesheet" href="style.css"/>
-  <script type="module" src="admin.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear encuesta</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
     <h1>Crear encuesta</h1>
     <div class="card">
-      <input id="title" placeholder="Título de la votación"/>
-      <input id="candidate" placeholder="Nombre de la persona evaluada"/>
-      <input id="image" placeholder="URL de la foto (pública)"/>
-      <input id="judges" placeholder="Códigos de jueces (separados por coma)"/>
+      <input type="text" id="title" placeholder="Título de la encuesta">
+      <input type="text" id="candidate" placeholder="Nombre del candidato">
+      <input type="text" id="image" placeholder="URL de la foto (pública)">
+      <input type="text" id="judges" placeholder="Códigos de jueces (separados por comas)">
       <button id="create">Crear y mostrar QR</button>
+      <div id="qr" style="margin-top: 20px;"></div>
+      <button id="results" style="margin-top: 20px; display: none;">Ver resultados en vivo</button>
+
     </div>
-    <div id="qr"></div>
   </div>
+
+  <!-- Importa primero tu archivo de configuración de Supabase -->
+  <script type="module" src="./app.js"></script>
+
+  <!-- Script principal de la lógica del admin -->
+  <script type="module" src="./admin.js"></script>
+
+  <!-- Librería de QR para que QRCode esté definido -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </body>
 </html>
