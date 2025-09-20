@@ -1,89 +1,93 @@
-import { supabase, qs, $, fmt, WEIGHT_JUDGES, WEIGHT_PUBLIC, toast } from "./app.js";
 
-const pollId = qs("poll");
-let poll = null;
+(function(){
+  var App = window.App||{};
+  var supabase = App.supabase, qs = App.qs, $ = App.$, fmt = App.fmt, WJ = App.WEIGHT_JUDGES, WP = App.WEIGHT_PUBLIC, toast = App.toast;
 
-function setHeader(){
-  $("#header").style.display = "block";
-  $("#rTitle").textContent = poll.title;
-  $("#rCand").textContent = poll.candidate_name || "";
-  if (poll.image_url){ const i=$("#rPhoto"); i.src=poll.image_url; i.style.display="block"; }
-  $("#rState").textContent = poll.is_open===false? "Cerrada":"Abierta";
-  $("#rState").className = "tag " + (poll.is_open===false? "bad":"ok");
-}
+  var pollId = qs("poll");
+  var poll = null;
 
-async function pickOrLoad(){
-  if (!pollId){
-    $("#pickPoll").style.display = "block";
-    const { data } = await supabase.from("polls").select("*").order("created_at", {ascending:false});
-    $("#pollList").innerHTML = (data||[]).map(p=>{
-      return `<div class="card">
-        <h4>${p.title}</h4>
-        <p class="small">${p.candidate_name ?? ""}</p>
-        <button onclick="location.href='results.html?poll=${p.id}'">Ver resultados</button>
-      </div>`;
-    }).join("") || "<p class='small'>No hay encuestas</p>";
-    return false;
+  function setHeader(){
+    document.getElementById("header").style.display = "block";
+    document.getElementById("rTitle").textContent = poll.title;
+    document.getElementById("rCand").textContent = poll.candidate_name || "";
+    if (poll.image_url){ var i=document.getElementById("rPhoto"); i.src=poll.image_url; i.style.display="block"; }
+    var open = (poll.is_open !== false);
+    document.getElementById("rState").textContent = open ? "Abierta" : "Cerrada";
+    document.getElementById("rState").className = "tag " + (open ? "ok" : "bad");
   }
-  const { data, error } = await supabase.from("polls").select("*").eq("id", pollId).single();
-  if (error){ toast("No se encontró la encuesta", "bad"); return false; }
-  poll = data;
-  setHeader();
-  $("#btnShare").onclick = ()=> navigator.clipboard?.writeText(`${location.origin}/vote.html?poll=${pollId}`);
-  $("#btnOpen").onclick = async ()=>{
-    const { error } = await supabase.from("polls").update({ is_open: !(poll.is_open===false) }).eq("id", pollId);
-    if (!error) toast("Estado actualizado"); else toast("No se pudo actualizar", "bad");
-  };
-  return true;
-}
 
-function render(votes){
-  const judges = votes.filter(v => v.role==="judge");
-  const publics = votes.filter(v => v.role==="public");
+  async function pickOrLoad(){
+    if (!pollId){
+      document.getElementById("pickPoll").style.display = "block";
+      var q = await supabase.from("polls").select("*").order("created_at", {ascending:false});
+      var html = (q.data||[]).map(function(p){
+        return "<div class='card'>"
+          + "<h4>"+p.title+"</h4>"
+          + "<p class='small'>"+(p.candidate_name||"")+"</p>"
+          + "<button onclick="location.href='results.html?poll="+p.id+"'">Ver resultados</button>"
+          + "</div>";
+      }).join("");
+      document.getElementById("pollList").innerHTML = html || "<p class='small'>No hay encuestas</p>";
+      return false;
+    }
+    var res = await supabase.from("polls").select("*").eq("id", pollId).single();
+    if (res.error){ toast("No se encontró la encuesta", "bad"); return false; }
+    poll = res.data;
+    setHeader();
+    document.getElementById("btnShare").onclick = function(){ navigator.clipboard && navigator.clipboard.writeText(location.origin + "/vote.html?poll=" + pollId); };
+    document.getElementById("btnOpen").onclick = async function(){
+      var upd = await supabase.from("polls").update({ is_open: !(poll.is_open !== false) }).eq("id", pollId);
+      if (!upd.error){ toast("Estado actualizado"); } else { toast("No se pudo actualizar", "bad"); }
+    };
+    return true;
+  }
 
-  const avg = arr => arr.length ? (arr.reduce((s,v)=>s+Number(v.score||0),0)/arr.length) : 0;
-  const aJ = avg(judges), aP = avg(publics);
+  function render(votes){
+    var judges = votes.filter(function(v){ return v.role==="judge"; });
+    var publics = votes.filter(function(v){ return v.role==="public"; });
+    function avg(arr){ return arr.length ? (arr.reduce(function(s,v){return s+Number(v.score||0)},0)/arr.length) : 0; }
 
-  $("#stats").style.display = "grid";
-  $("#lists").style.display = "grid";
+    var aJ = avg(judges), aP = avg(publics);
+    document.getElementById("stats").style.display = "grid";
+    document.getElementById("lists").style.display = "grid";
 
-  $("#avgJ").textContent = fmt(aJ);
-  $("#avgP").textContent = fmt(aP);
-  $("#cntJ").textContent = `${judges.length} voto(s)`;
-  $("#cntP").textContent = `${publics.length} voto(s)`;
-  $("#barJ").style.width = `${(aJ/10)*100}%`;
-  $("#barP").style.width = `${(aP/10)*100}%`;
+    document.getElementById("avgJ").textContent = fmt(aJ);
+    document.getElementById("avgP").textContent = fmt(aP);
+    document.getElementById("cntJ").textContent = judges.length + " voto(s)";
+    document.getElementById("cntP").textContent = publics.length + " voto(s)";
+    document.getElementById("barJ").style.width = (aJ/10)*100 + "%";
+    document.getElementById("barP").style.width = (aP/10)*100 + "%";
 
-  const total = (aJ*WEIGHT_JUDGES) + (aP*WEIGHT_PUBLIC);
-  $("#total").textContent = fmt(total);
-  $("#barT").style.width = `${(total/10)*100}%`;
+    var total = (aJ*WJ) + (aP*WP);
+    document.getElementById("total").textContent = fmt(total);
+    document.getElementById("barT").style.width = (total/10)*100 + "%";
 
-  $("#listJ").innerHTML = judges.map(j=>`<li>Juez <strong>${j.user_code}</strong>: ${fmt(j.score)}</li>`).join("") || "<li class='small'>—</li>";
-  $("#listP").innerHTML = publics.map(p=>`<li>${p.user_code}: ${fmt(p.score)}</li>`).join("") || "<li class='small'>—</li>";
-}
+    document.getElementById("listJ").innerHTML = judges.map(function(j){ return "<li>Juez <strong>"+j.user_code+"</strong>: "+fmt(j.score)+"</li>"; }).join("") || "<li class='small'>—</li>";
+    document.getElementById("listP").innerHTML = publics.map(function(p){ return "<li>"+p.user_code+": "+fmt(p.score)+"</li>"; }).join("") || "<li class='small'>—</li>";
+  }
 
-async function loadVotes(){
-  const { data, error } = await supabase.from("votes").select("*").eq("poll_id", pollId);
-  if (error){ console.error(error); return; }
-  render(data||[]);
-}
+  async function loadVotes(){
+    var q = await supabase.from("votes").select("*").eq("poll_id", pollId);
+    if (q.error){ console.error(q.error); return; }
+    render(q.data||[]);
+  }
 
-// Realtime votos + cambios de estado de la poll
-function subscribe(){
-  supabase.channel("realtime-votes")
-    .on("postgres_changes",{ event:"INSERT", schema:"public", table:"votes", filter:`poll_id=eq.${pollId}` },()=>loadVotes())
-    .on("postgres_changes",{ event:"UPDATE", schema:"public", table:"votes", filter:`poll_id=eq.${pollId}` },()=>loadVotes())
-    .on("postgres_changes",{ event:"DELETE", schema:"public", table:"votes", filter:`poll_id=eq.${pollId}` },()=>loadVotes())
-    .subscribe();
+  function subscribe(){
+    supabase.channel("realtime-votes")
+      .on("postgres_changes",{ event:"INSERT", schema:"public", table:"votes", filter:"poll_id=eq."+pollId }, function(){ loadVotes(); })
+      .on("postgres_changes",{ event:"UPDATE", schema:"public", table:"votes", filter:"poll_id=eq."+pollId }, function(){ loadVotes(); })
+      .on("postgres_changes",{ event:"DELETE", schema:"public", table:"votes", filter:"poll_id=eq."+pollId }, function(){ loadVotes(); })
+      .subscribe();
 
-  supabase.channel("realtime-pollstate")
-    .on("postgres_changes",{ event:"UPDATE", schema:"public", table:"polls", filter:`id=eq.${pollId}` }, payload=>{
-      poll = payload.new; setHeader();
-    })
-    .subscribe();
-}
+    supabase.channel("realtime-pollstate")
+      .on("postgres_changes",{ event:"UPDATE", schema:"public", table:"polls", filter:"id=eq."+pollId }, function(payload){ poll = payload.new; setHeader(); })
+      .subscribe();
+  }
 
-if (await pickOrLoad()){
-  await loadVotes();
-  subscribe();
-}
+  (async function(){
+    if (await pickOrLoad()){
+      await loadVotes();
+      subscribe();
+    }
+  })();
+})();

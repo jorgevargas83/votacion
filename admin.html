@@ -1,24 +1,24 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Panel — Encuestas</title>
-  <link rel="stylesheet" href="style.css" />
-  <!-- Librerías -->
+  <link rel="stylesheet" href="style.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script src="/app.global.js?v=5"></script>
+  <script src="app.global.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>Crear encuesta</h1>
     <div class="card grid grid-2">
       <div>
-        <input id="title" type="text" placeholder="Título de la encuesta" />
-        <input id="candidate" type="text" placeholder="Nombre del candidato (opcional)" />
-        <input id="image" type="text" placeholder="URL de la foto (pública)" />
-        <input id="judges" type="text" placeholder="Códigos de jueces separados por coma (J001,J002)" />
+        <input id="title" placeholder="Título de la encuesta"/>
+        <input id="candidate" placeholder="Nombre del candidato (opcional)"/>
+        <input id="image" placeholder="URL de la foto (pública)"/>
+        <input id="judges" placeholder="Códigos de jueces separados por coma (J001,J002)"/>
         <div class="flex">
           <button id="createPoll">Crear y mostrar QR</button>
           <button id="viewResultsBtn" class="secondary" style="display:none;">Ver resultados</button>
@@ -33,15 +33,12 @@
     <h2>Mis encuestas</h2>
     <div class="card">
       <table class="table" id="pollTable">
-        <thead><tr>
-          <th>Título</th><th>Estado</th><th>Creada</th><th>Acciones</th>
-        </tr></thead>
+        <thead><tr><th>Título</th><th>Estado</th><th>Creada</th><th>Acciones</th></tr></thead>
         <tbody id="pollRows"><tr><td colspan="4" class="small">Cargando…</td></tr></tbody>
       </table>
     </div>
   </div>
 
-  <!-- Modal QR -->
   <div id="qrModal" class="modal">
     <div class="modal-content">
       <div class="qr-box">
@@ -55,7 +52,6 @@
     </div>
   </div>
 
-  <!-- IMPORTANT: NO type="module". Usa el nombre NUEVO con ?v para romper caché -->
-  <script src="/admin.nobuild.js?v=5" defer></script>
+  <script src="admin.js" defer></script>
 </body>
 </html>
