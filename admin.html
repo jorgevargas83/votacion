@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel — Encuestas</title>
   <link rel="stylesheet" href="style.css">
+  <!-- libs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="/app.global.js"></script>
 </head>
 <body>
   <div class="container">
@@ -20,7 +23,7 @@
           <button id="createPoll">Crear y mostrar QR</button>
           <button id="viewResultsBtn" class="secondary" style="display:none;">Ver resultados</button>
         </div>
-        <p class="small">Sugerencia: usa códigos de juez únicos (ej. J001, J002...).</p>
+        <p class="small">Sugerencia: códigos únicos (J001, J002…).</p>
       </div>
       <div>
         <div id="qrContainer" class="card" style="min-height:290px; display:flex; align-items:center; justify-content:center;">QR aquí</div>
@@ -38,7 +41,7 @@
     </div>
   </div>
 
-  <!-- Modal QR reutilizable -->
+  <!-- Modal QR -->
   <div id="qrModal" class="modal">
     <div class="modal-content">
       <div class="qr-box">
@@ -52,6 +55,6 @@
     </div>
   </div>
 
-  <script type="module" src="admin.js"></script>
+  <script src="/admin.js" defer></script>
 </body>
 </html>
