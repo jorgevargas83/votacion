@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Resultados en vivo</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="/app.global.js"></script>
 </head>
 <body>
   <div class="container">
@@ -47,7 +49,7 @@
         <h3>Total ponderado</h3>
         <div class="big" id="total">0.00</div>
         <div class="bar"><span id="barT"></span></div>
-        <p class="small">Se calcula como 60% jueces + 40% público (configurable).</p>
+        <p class="small">60% jueces + 40% público.</p>
       </div>
     </div>
 
@@ -63,6 +65,6 @@
     </div>
   </div>
 
-  <script type="module" src="./results.js"></script>
+  <script src="/results.js" defer></script>
 </body>
 </html>
