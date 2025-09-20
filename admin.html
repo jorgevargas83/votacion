@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel — Encuestas</title>
-  <link rel="stylesheet" href="style.css">
-  <!-- libs -->
+  <link rel="stylesheet" href="style.css" />
+  <!-- Librerías -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script src="/app.global.js"></script>
+  <script src="/app.global.js?v=5"></script>
 </head>
 <body>
   <div class="container">
@@ -23,7 +23,7 @@
           <button id="createPoll">Crear y mostrar QR</button>
           <button id="viewResultsBtn" class="secondary" style="display:none;">Ver resultados</button>
         </div>
-        <p class="small">Sugerencia: códigos únicos (J001, J002…).</p>
+        <p class="small">Sugerencia: códigos únicos (J001, J002…)</p>
       </div>
       <div>
         <div id="qrContainer" class="card" style="min-height:290px; display:flex; align-items:center; justify-content:center;">QR aquí</div>
@@ -55,6 +55,7 @@
     </div>
   </div>
 
-  <script src="/admin.js" defer></script>
+  <!-- IMPORTANT: NO type="module". Usa el nombre NUEVO con ?v para romper caché -->
+  <script src="/admin.nobuild.js?v=5" defer></script>
 </body>
 </html>
