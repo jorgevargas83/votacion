@@ -1,4 +1,4 @@
-import { supabase, $, $$, fmt, toast, copy } from "./app.js";
+import { supabase, $, toast, copy } from "./app.js";
 
 const titleInput = $("#title");
 const candidateInput = $("#candidate");
@@ -14,8 +14,8 @@ const qrLink = $("#qrLink");
 const btnCopy = $("#copyLink");
 const btnClose = $("#closeQr");
 
-function pollUrl(id){ return `${location.origin}/vote.html?poll=${id}` }
-function resultsUrl(id){ return `results.html?poll=${id}` }
+function pollUrl(id){ return ${location.origin}/vote.html?poll=${id} }
+function resultsUrl(id){ return results.html?poll=${id} }
 
 createBtn.onclick = async () => {
   try {
@@ -23,56 +23,56 @@ createBtn.onclick = async () => {
     const candidate = candidateInput.value.trim();
     const image = imageInput.value.trim();
     const rawJudges = (judgesInput.value || "").trim();
-
     if (!title) return toast("El título es obligatorio", "warn");
 
-    // Crear encuesta (iniciamos abierta)
+    // 1) Crear poll (abierta)
     const { data: poll, error } = await supabase
-      .from("polls")
-      .insert([{ title, candidate_name: candidate || null, image_url: image || null, is_open: true }])
-      .select()
-      .single();
-
+      .from("polls").insert([{ title, candidate_name: candidate || null, image_url: image || null, is_open: true }])
+      .select().single();
     if (error) throw error;
 
-    // Insertar jueces si vienen
+    // 2) Si hay jueces por código, upsert en users y asignarlos
     if (rawJudges) {
       const codes = rawJudges.split(",").map(s => s.trim()).filter(Boolean);
-      const rows = codes.map(code => ({ poll_id: poll.id, user_id: code }));
-      const { error: jErr } = await supabase.from("poll_judges").insert(rows);
-      if (jErr) console.warn("Aviso: no se pudieron insertar algunos jueces:", jErr);
+      if (codes.length){
+        // Upsert users (role juez)
+        const upsertRows = codes.map(code => ({ code, role: "judge" }));
+        const { error: upErr } = await supabase.from("users").upsert(upsertRows, { onConflict: "code" });
+        if (upErr) console.warn("Aviso upsert users:", upErr);
+
+        // Obtener IDs por code
+        const { data: judgeUsers, error: selErr } = await supabase
+          .from("users").select("id, code").in("code", codes);
+        if (selErr) console.warn("Aviso select users:", selErr);
+
+        // Insertar asignaciones
+        const pjRows = (judgeUsers||[]).map(u => ({ poll_id: poll.id, user_id: u.id }));
+        if (pjRows.length){
+          const { error: pjErr } = await supabase.from("poll_judges").insert(pjRows);
+          if (pjErr) console.warn("Aviso insert poll_judges:", pjErr);
+        }
+      }
     }
 
-    // Render QR principal en el panel
-    const url = pollUrl(poll.id);
+    // 3) QR y UI
     qrContainer.innerHTML = "";
-    new QRCode(qrContainer, { text: url, width: 256, height: 256 });
-
+    new QRCode(qrContainer, { text: pollUrl(poll.id), width: 256, height: 256 });
     resultsBtn.style.display = "inline-block";
     resultsBtn.onclick = () => location.href = resultsUrl(poll.id);
-
     toast("Encuesta creada ✅");
-    await loadPolls(); // refrescar lista
+    await loadPolls();
   } catch (err) {
     console.error(err);
-    toast("Hubo un problema creando la encuesta", "bad");
+    toast(err?.message || "Error creando la encuesta", "bad");
   }
 };
 
 async function loadPolls(){
   const tbody = $("#pollRows");
   tbody.innerHTML = "<tr><td colspan='4' class='small'>Cargando…</td></tr>";
-  const { data, error } = await supabase
-    .from("polls")
-    .select("*")
-    .order("created_at", { ascending:false });
-
+  const { data, error } = await supabase.from("polls").select("*").order("created_at", { ascending:false });
   if (error){ tbody.innerHTML = "<tr><td colspan='4'>Error cargando</td></tr>"; return }
-
-  if (!data || data.length===0){
-    tbody.innerHTML = "<tr><td colspan='4' class='small'>No hay encuestas</td></tr>";
-    return;
-  }
+  if (!data?.length){ tbody.innerHTML = "<tr><td colspan='4' class='small'>No hay encuestas</td></tr>"; return }
 
   tbody.innerHTML = data.map(p => {
     const state = p.is_open === false ? "<span class='tag bad'>Cerrada</span>" : "<span class='tag ok'>Abierta</span>";
@@ -98,7 +98,7 @@ document.addEventListener("click", async (e)=>{
   const id = btn.dataset.id;
   const act = btn.dataset.act;
 
-  if (act==="results") location.href = `results.html?poll=${id}`;
+  if (act==="results") location.href = results.html?poll=${id};
   if (act==="copy"){ copy(pollUrl(id)); toast("Link copiado"); }
 
   if (act==="qr"){
@@ -109,16 +109,14 @@ document.addEventListener("click", async (e)=>{
   }
 
   if (act==="toggle"){
-    // Cambiar is_open (si la columna no existe, avisamos)
     const { data: p, error: getErr } = await supabase.from("polls").select("is_open").eq("id", id).single();
-    if (getErr){ toast("Agrega la columna is_open a polls", "warn"); return; }
+    if (getErr){ toast("Error leyendo estado", "bad"); return; }
     const { error } = await supabase.from("polls").update({ is_open: !p.is_open }).eq("id", id);
     if (error) toast("No se pudo cambiar el estado", "bad"); else { toast("Estado actualizado"); loadPolls(); }
   }
 
   if (act==="delete"){
     if (!confirm("¿Eliminar encuesta y sus votos?")) return;
-    // Borrado sencillo: primero dependencias
     await supabase.from("votes").delete().eq("poll_id", id);
     await supabase.from("poll_judges").delete().eq("poll_id", id);
     const { error } = await supabase.from("polls").delete().eq("id", id);
@@ -129,5 +127,4 @@ document.addEventListener("click", async (e)=>{
 btnClose.onclick = ()=> qrModal.classList.remove("show");
 btnCopy.onclick = ()=> { copy(qrLink.textContent); toast("Link copiado"); };
 
-// Inicial
 loadPolls();
