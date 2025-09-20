@@ -4,7 +4,8 @@
   <meta charset="utf-8"/>
   <title>Votar</title>
   <link rel="stylesheet" href="style.css"/>
-  <script type="module" src="vote.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="/app.global.js"></script>
 </head>
 <body>
   <div class="container">
@@ -34,10 +35,11 @@
             <div class="bar" style="flex:1"><span id="scoreBar"></span></div>
           </div>
           <button id="submitVote">Enviar voto</button>
-          <p class="small">Solo 1 voto por persona. Se valida en servidor y en tu dispositivo.</p>
+          <p class="small">Solo 1 voto por persona.</p>
         </div>
       </div>
     </div>
   </div>
+  <script src="/vote.js" defer></script>
 </body>
 </html>
