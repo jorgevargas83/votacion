@@ -3,63 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resultados en Vivo</title>
+  <title>Resultados en vivo</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      background: #111;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
-
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 10px;
-    }
-
-    #results {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
-    }
-
-    .card {
-      background: #1e1e1e;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-    }
-
-    .judge-card {
-      border-left: 4px solid #4cafef;
-    }
-
-    .public-card {
-      border-left: 4px solid #ffa726;
-    }
-
-    .score {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #4cafef;
-    }
-
-    .total {
-      grid-column: 1 / -1;
-      background: #333;
-      padding: 20px;
-      border-radius: 12px;
-      font-size: 2rem;
-      margin-top: 10px;
-    }
-  </style>
 </head>
 <body>
-  <h1>Resultados en Vivo</h1>
-  <div id="results">Cargando resultados...</div>
+  <div class="container">
+    <h1>Resultados</h1>
+
+    <div id="pickPoll" class="card" style="display:none">
+      <h3>Elige una encuesta</h3>
+      <div id="pollList" class="grid grid-auto"></div>
+    </div>
+
+    <div id="header" class="card" style="display:none">
+      <div class="flex">
+        <img id="rPhoto" style="max-height:120px; display:none"/>
+        <div>
+          <h2 id="rTitle">—</h2>
+          <p id="rCand" class="small">—</p>
+          <p id="rState" class="tag">—</p>
+          <div class="flex">
+            <button id="btnShare" class="secondary">Copiar link de voto</button>
+            <button id="btnOpen" class="warning">Abrir/Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="stats" class="grid grid-2" style="display:none">
+      <div class="card">
+        <h3>Promedio Jueces</h3>
+        <div class="big" id="avgJ">0.00</div>
+        <div class="bar"><span id="barJ"></span></div>
+        <p class="small" id="cntJ">0 votos</p>
+      </div>
+      <div class="card">
+        <h3>Promedio Público</h3>
+        <div class="big" id="avgP">0.00</div>
+        <div class="bar"><span id="barP"></span></div>
+        <p class="small" id="cntP">0 votos</p>
+      </div>
+      <div class="card" style="grid-column:1/-1">
+        <h3>Total ponderado</h3>
+        <div class="big" id="total">0.00</div>
+        <div class="bar"><span id="barT"></span></div>
+        <p class="small">Se calcula como 60% jueces + 40% público (configurable).</p>
+      </div>
+    </div>
+
+    <div id="lists" class="grid grid-2" style="display:none">
+      <div class="card">
+        <h3>Detalle Jueces</h3>
+        <ul id="listJ"></ul>
+      </div>
+      <div class="card">
+        <h3>Detalle Público</h3>
+        <ul id="listP"></ul>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="./results.js"></script>
 </body>

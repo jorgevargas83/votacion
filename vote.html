@@ -9,26 +9,34 @@
 <body>
   <div class="container">
     <h1 id="title">Votación</h1>
-    <img id="photo" style="max-height:250px"/>
-    <p id="candidate"></p>
-    <div class="card">
-      <input id="code" placeholder="Ingresa tu carnet"/>
-      <button id="check">Continuar</button>
-    </div>
-   <div id="voteArea" style="display: none;">
-  <label for="score">Puntaje:</label>
-  <input type="range" id="score" min="0" max="10" step="0.1" value="0">
-  <span id="scoreValue">0.0</span>
-  <button id="submitVote">Enviar voto</button>
-</div>
+    <div class="card grid">
+      <div class="flex">
+        <img id="photo" style="max-height:220px; display:none"/>
+        <div>
+          <p id="candidate" class="big"></p>
+          <p id="stateTag" class="tag">Estado</p>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="flex">
+            <input id="code" placeholder="Ingresa tu carnet/código"/>
+            <button id="check">Continuar</button>
+          </div>
+          <p id="roleInfo" class="small"></p>
+        </div>
 
-  </div>
-
-  <div id="modal" class="modal" style="display:none">
-    <div class="modal-content">
-      <h3>¿Cómo deseas votar?</h3>
-      <button id="asJudge">JUEZ</button>
-      <button id="asPublic" class="secondary">PÚBLICO</button>
+        <div id="voteArea" class="card" style="display:none">
+          <label for="score">Puntaje (0–10)</label>
+          <input type="range" id="score" min="0" max="10" step="0.1" value="0">
+          <div class="flex">
+            <span class="big" id="scoreValue">0.0</span>
+            <div class="bar" style="flex:1"><span id="scoreBar"></span></div>
+          </div>
+          <button id="submitVote">Enviar voto</button>
+          <p class="small">Solo 1 voto por persona. Se valida en servidor y en tu dispositivo.</p>
+        </div>
+      </div>
     </div>
   </div>
 </body>

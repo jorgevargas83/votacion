@@ -3,29 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Crear encuesta</title>
+  <title>Panel — Encuestas</title>
   <link rel="stylesheet" href="style.css">
-
-  <!-- Librería QRCode.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>Crear encuesta</h1>
+    <div class="card grid grid-2">
+      <div>
+        <input id="title" type="text" placeholder="Título de la encuesta" />
+        <input id="candidate" type="text" placeholder="Nombre del candidato (opcional)" />
+        <input id="image" type="text" placeholder="URL de la foto (pública)" />
+        <input id="judges" type="text" placeholder="Códigos de jueces separados por coma (J001,J002)" />
+        <div class="flex">
+          <button id="createPoll">Crear y mostrar QR</button>
+          <button id="viewResultsBtn" class="secondary" style="display:none;">Ver resultados</button>
+        </div>
+        <p class="small">Sugerencia: usa códigos de juez únicos (ej. J001, J002...).</p>
+      </div>
+      <div>
+        <div id="qrContainer" class="card" style="min-height:290px; display:flex; align-items:center; justify-content:center;">QR aquí</div>
+      </div>
+    </div>
 
-    <input id="title" type="text" placeholder="Título de la encuesta" />
-    <input id="candidate" type="text" placeholder="Nombre del candidato (opcional)" />
-    <input id="image" type="text" placeholder="URL de la foto (pública)" />
-    <input id="judges" type="text" placeholder="Códigos de jueces separados por coma (ej: JUEZ001,JUEZ002)" />
+    <h2>Mis encuestas</h2>
+    <div class="card">
+      <table class="table" id="pollTable">
+        <thead><tr>
+          <th>Título</th><th>Estado</th><th>Creada</th><th>Acciones</th>
+        </tr></thead>
+        <tbody id="pollRows"><tr><td colspan="4" class="small">Cargando…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
 
-    <button id="createPoll" class="btn btn-primary">Crear y mostrar QR</button>
-
-    <div id="qrContainer" style="margin-top: 20px;"></div>
-
-    <!-- Botón para ver resultados en vivo -->
-    <button id="viewResultsBtn" class="btn btn-secondary" style="display:none; margin-top: 10px;">
-      Ver resultados en vivo
-    </button>
+  <!-- Modal QR reutilizable -->
+  <div id="qrModal" class="modal">
+    <div class="modal-content">
+      <div class="qr-box">
+        <div id="qrModalBox"></div>
+        <div id="qrLink" class="small"></div>
+        <div class="flex">
+          <button id="copyLink" class="secondary">Copiar link</button>
+          <button id="closeQr" class="ghost">Cerrar</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="admin.js"></script>
